@@ -16,7 +16,8 @@ Episode = collections.namedtuple('episode',
 def test_agent(agent_class, n_episodes=1, time_range=100, render=True, FPS=10, print_info=True):
     agent = agent_class()
     env = gym.make('CartPole-v0')
-    episodes = []
+    episodes = {}
+    episode_num = 0
     for i_episode in range(n_episodes):
         total_reward = 0
         observation = env.reset()
@@ -34,7 +35,8 @@ def test_agent(agent_class, n_episodes=1, time_range=100, render=True, FPS=10, p
                 if print_info:
                     print('Episode finished after {} timesteps'.format(t+1))
                 break
-        episodes.append(Episode(transitions_list, total_reward))
+        episodes[episode_num] = Episode(transitions_list, total_reward)
+        episode_num += 1
     env.close()
     if print_info:
         print(f'Average reward per episode = {total_reward/n_episodes}')
