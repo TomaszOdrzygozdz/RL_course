@@ -13,8 +13,7 @@ Episode = collections.namedtuple('episode',
                                  ['transitions_list',
                                   'total_reward'])
 
-def test_agent(agent_class, n_episodes=1, time_range=100, render=True, FPS=10, print_info=True):
-    agent = agent_class()
+def test_agent(agent, n_episodes=1, time_range=100, render=True, FPS=10, print_info=True):
     env = gym.make('CartPole-v0')
     episodes = {}
     episode_num = 0

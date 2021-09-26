@@ -59,13 +59,13 @@ class CrossEntropyAgent:
             else:
                 return 1
 
-    def train_one_epoch(self, n_episodes, best_percent=90):
-        data = test_agent(agent_class=WeakAgent, n_episodes=n_episodes, render=False)
-        policy_update = {}
+    def train_one_epoch(self, n_episodes, alpha, best_percent=90, epsilon=0.1):
+        data = test_agent(agent=self, n_episodes=n_episodes, render=False, print_info=False)
+        policy_update_raw = {}
         #select best episodes
         values_list = np.array([episode.total_reward for episode in data.values()])
         percentile = np.percentile(values_list, best_percent)
-        print(f'value list = {values_list} percentile = {percentile}')
+
         used_episodes = 0
         for episode in data.values():
             if episode.total_reward >= percentile:
@@ -73,16 +73,42 @@ class CrossEntropyAgent:
                 for transition in episode.transitions_list:
                     observation = transition.observation
                     obs_binned = self.bucketer.observation_to_bucket(observation)
-                    if obs_binned not in policy_update:
-                        policy_update[obs_binned] = [0,0]
-                    policy_update[obs_binned][transition.action] += 1
+                    if obs_binned not in policy_update_raw:
+                        policy_update_raw[obs_binned] = [0,0]
+                    policy_update_raw[obs_binned][transition.action] += 1
 
-        print(policy_update)
+        policy_update = {}
+        for obs, policy in policy_update_raw.items():
+            sum_over_actions = policy_update_raw[obs][0] + policy_update_raw[obs][1] + 2*epsilon
+            policy_update[obs] = [
+                (policy_update_raw[obs][0]+epsilon)/sum_over_actions,
+                (policy_update_raw[obs][1]+epsilon)/sum_over_actions
+                ]
+
+        # print(f'policy update = {policy_update}')
         print(f'used_episodes = {used_episodes}')
+
+        for key, val in policy_update.items():
+            if key not in self.policy_table:
+                self.policy_table[key] = val
+            else:
+                for i in range(2):
+                    self.policy_table[key][i] = (1-alpha)*self.policy_table[key][i] + alpha*policy_update[key][i]
+
+        print(f'policy len = {len(self.policy_table)}')
+
+        return np.mean(values_list), percentile
+
+
+    def train(self, episodes_per_epoch, epochs, alpha, best_percent):
+        for epoch in range(epochs):
+            mean_return, percentile = self.train_one_epoch(episodes_per_epoch, alpha, best_percent)
+            print(f'Epoch {epoch} | mean return = {mean_return}, percentile = {percentile}')
+
 
 
 
 
 # data = test_agent(agent_class=WeakAgent, n_episodes=2,render=False)
 agent = CrossEntropyAgent()
-agent.train_one_epoch(1000)
+agent.train(1000, 10, 0.5, 90)
