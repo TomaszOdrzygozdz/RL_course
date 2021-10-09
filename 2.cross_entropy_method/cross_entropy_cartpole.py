@@ -85,9 +85,6 @@ class CrossEntropyAgent:
                 (policy_update_raw[obs][1]+epsilon)/sum_over_actions
                 ]
 
-        # print(f'policy update = {policy_update}')
-        print(f'used_episodes = {used_episodes}')
-
         for key, val in policy_update.items():
             if key not in self.policy_table:
                 self.policy_table[key] = val
@@ -95,20 +92,18 @@ class CrossEntropyAgent:
                 for i in range(2):
                     self.policy_table[key][i] = (1-alpha)*self.policy_table[key][i] + alpha*policy_update[key][i]
 
-        print(f'policy len = {len(self.policy_table)}')
-
         return np.mean(values_list), percentile
 
 
-    def train(self, episodes_per_epoch, epochs, alpha, best_percent):
+    def train(self, episodes_per_epoch, epochs, alpha, best_percent, epsilon):
         for epoch in range(epochs):
-            mean_return, percentile = self.train_one_epoch(episodes_per_epoch, alpha, best_percent)
+            mean_return, percentile = self.train_one_epoch(episodes_per_epoch, alpha, best_percent, epsilon)
             print(f'Epoch {epoch} | mean return = {mean_return}, percentile = {percentile}')
 
 
 
-
-
 # data = test_agent(agent_class=WeakAgent, n_episodes=2,render=False)
-agent = CrossEntropyAgent()
-agent.train(1000, 10, 0.5, 90)
+cr_agent = CrossEntropyAgent()
+cr_agent.train(episodes_per_epoch=1000, epochs=10, alpha=0.5, best_percent=90, epsilon=0.1)
+data = test_agent(cr_agent)
+print(f'Testing agent: reward = {data[0].total_reward}')

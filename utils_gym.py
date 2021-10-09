@@ -1,7 +1,7 @@
 from time import sleep
 
 import collections
-import gym
+from gym.envs.classic_control import cartpole
 
 Transition = collections.namedtuple('transition',
                                     ['observation',
@@ -13,8 +13,7 @@ Episode = collections.namedtuple('episode',
                                  ['transitions_list',
                                   'total_reward'])
 
-def test_agent(agent, n_episodes=1, time_range=100, render=True, FPS=10, print_info=True):
-    env = gym.make('CartPole-v0')
+def test_agent(env, agent, n_episodes=1, time_range=200, render=True, FPS=10, print_info=True):
     episodes = {}
     episode_num = 0
     for i_episode in range(n_episodes):
@@ -23,7 +22,7 @@ def test_agent(agent, n_episodes=1, time_range=100, render=True, FPS=10, print_i
         transitions_list = []
         for t in range(time_range):
             if render:
-                env.render(mode='rgb_array')
+                env.render(mode='human')
                 sleep(1/FPS)
             action = agent.act(observation)
             next_observation, reward, done, info = env.step(action)

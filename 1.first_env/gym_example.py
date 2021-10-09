@@ -28,7 +28,7 @@ class ExampleAgent:
         else:
             return 1
 
-def test_agent(agent_class, n_episodes=1, time_range=100, render=True, FPS=10):
+def test_agent_on_cartpole(agent_class, n_episodes=1, time_range=100, render=True, FPS=10):
     agent = agent_class()
     env = gym.make('CartPole-v0')
     total_reward = 0
@@ -36,7 +36,7 @@ def test_agent(agent_class, n_episodes=1, time_range=100, render=True, FPS=10):
         observation = env.reset()
         for t in range(time_range):
             if render:
-                env.render(mode='rgb_array')
+                env.render(mode='human')
                 sleep(1/FPS)
             action = agent.act(observation)
             observation, reward, done, info = env.step(action)
@@ -49,7 +49,7 @@ def test_agent(agent_class, n_episodes=1, time_range=100, render=True, FPS=10):
     print(f'Average reward per episode = {total_reward/n_episodes}')
 
 # To visualize the agents performance:
-test_agent(agent_class=ExampleAgent,
+test_agent_on_cartpole(agent_class=ExampleAgent,
            n_episodes=1,
            time_range=150,
            render=True,
