@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+from gym.envs.classic_control import CartPoleEnv
 
 from utils_gym import test_agent
 from scipy.stats import norm
@@ -34,14 +35,8 @@ class WeakAgent:
         self.bucketer = CatrtPoleObservationBucketer(20)
 
     def act(self, observation):
-        ### Here write the code for strategy ###
-        # return random.randint(0,1)
-        # print(f'obs = {observation} binned = {self.bucketer.observation_to_bucket(observation)}')
         return random.randint(0,1)
-        # if observation[2] < 0:
-        #     return 0
-        # else:
-        #     return 1
+
 
 class CrossEntropyAgent:
     def __init__(self):
@@ -59,8 +54,8 @@ class CrossEntropyAgent:
             else:
                 return 1
 
-    def train_one_epoch(self, n_episodes, alpha, best_percent=90, epsilon=0.1):
-        data = test_agent(agent=self, n_episodes=n_episodes, render=False, print_info=False)
+    def train_one_epoch(self, env, n_episodes, alpha, best_percent=90, epsilon=0.1):
+        data = test_agent(env, agent=self, n_episodes=n_episodes, render=False, print_info=False)
         policy_update_raw = {}
         #select best episodes
         values_list = np.array([episode.total_reward for episode in data.values()])
@@ -97,13 +92,13 @@ class CrossEntropyAgent:
 
     def train(self, episodes_per_epoch, epochs, alpha, best_percent, epsilon):
         for epoch in range(epochs):
-            mean_return, percentile = self.train_one_epoch(episodes_per_epoch, alpha, best_percent, epsilon)
+            mean_return, percentile = self.train_one_epoch(env, episodes_per_epoch, alpha, best_percent, epsilon)
             print(f'Epoch {epoch} | mean return = {mean_return}, percentile = {percentile}')
 
 
 
-# data = test_agent(agent_class=WeakAgent, n_episodes=2,render=False)
+env = CartPoleEnv()
 cr_agent = CrossEntropyAgent()
-cr_agent.train(episodes_per_epoch=1000, epochs=10, alpha=0.5, best_percent=90, epsilon=0.1)
-data = test_agent(cr_agent)
+cr_agent.train(episodes_per_epoch=1000, epochs=20, alpha=0.5, best_percent=90, epsilon=0.1)
+data = test_agent(env, cr_agent, FPS=24)
 print(f'Testing agent: reward = {data[0].total_reward}')
