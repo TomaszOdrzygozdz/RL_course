@@ -51,7 +51,10 @@ class DQNAgent:
     def __init__(self):
         self.q_network = make_q_network()
         self.experience_buffer = []
-        self.epsilon = 2
+        self.experience_buffer_limit = 10000
+        self.alpha = 0.5
+        self.epsilon = 0.1
+        self.gamma = 0.995
 
     def evaluate(self, observation, action):
         assert action in action_to_one_hot.keys(), 'action must be 2 (up) or (5) down'
@@ -68,29 +71,47 @@ class DQNAgent:
             else:
                 return 5
 
-    def episodes_to_data(self, episodes):
-        x_obs = []
-        x_act = []
-        for episode in episodes:
-            transitions = episode.transitions_list
+    def add_to_buffer(self, episodes):
+        self.experience_buffer.extend(list(episodes.values()))
+        if len(self.experience_buffer) > self.experience_buffer_limit:
+            self.experience_buffer = self.experience_buffer[-self.experience_buffer_limit:]
 
+    def calculate_targets(self):
+        observation_data = []
+        action_data = []
+        reward_data = []
+        next_observation_data = []
+        for episode in self.experience_buffer:
+            for transition in episode.transitions_list:
+                observation_data.append(transition.observation)
+                action_data.append(action_to_one_hot[transition.action])
+                reward_data.append(transition.reward)
+                next_observation_data.append(transition.next_observation)
+
+        n_samples = len(observation_data)
+        observation_data = np.array(observation_data)
+        action_data = np.array(action_data)
+        reward_data = np.array(reward_data)
+        old_q_data = self.q_network.predict([np.array(observation_data), action_data]).reshape(1,n_samples)[0]
+        all_up = np.array([action_to_one_hot[2] for _ in range(n_samples)])
+        all_down = np.array([action_to_one_hot[5] for _ in range(n_samples)])
+        q_data_2 = self.q_network.predict([np.array(next_observation_data), all_up]).reshape(1,n_samples)[0]
+        q_data_5 = self.q_network.predict([np.array(next_observation_data), all_down]).reshape(1,n_samples)[0]
+        best_q = np.maximum(q_data_2, q_data_5)
+        #Bellmans equation
+        new_q_values = (1-self.alpha)*old_q_data +  self.alpha*(reward_data + self.gamma*best_q)
+        return observation_data, action_data, new_q_values
 
 
 
 env = gym.make('Pong-v0')
 env.action_repeat_probability = 0
-
-obs = env.reset()
-
-print(obs.shape)
-
-dupa = DQNAgent()
-
-print(dupa.evaluate(obs, 1))
-
+agent = DQNAgent()
 # q_net = make_q_network()
 # q = q_net.predict([np.array([obs]), np.array([[0,1]])])
 # print(q)
 
-test_agent(env, DQNAgent(None), FPS=20)
+episodes = test_agent(env, agent, n_episodes=1, render=False, print_info=False)
+agent.add_to_buffer(episodes)
+agent.calculate_targets()
 

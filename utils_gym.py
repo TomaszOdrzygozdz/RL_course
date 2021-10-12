@@ -7,7 +7,7 @@ Transition = collections.namedtuple('transition',
                                     ['observation',
                                      'action',
                                      'reward',
-                                     'next_state'])
+                                     'next_observation'])
 
 Episode = collections.namedtuple('episode',
                                  ['transitions_list',
