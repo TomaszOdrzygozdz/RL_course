@@ -30,7 +30,21 @@ class QLearningAgent:
 
     def act(self, observation):
         bucketized_obs = self.bucketer.observation_to_bucket(observation)
-        # WRITE CODE HERE THAT CHOOSES ACTION
+        if bucketized_obs not in self.q_table:
+            # print('not in')
+            self.q_table[bucketized_obs] = [0,0]
+
+        if random.random() < self.epsilon:
+            return random.randint(0,1)
+        else:
+            if self.q_table[bucketized_obs][0] > self.q_table[bucketized_obs][1]:
+                self.counter[0] += 1
+                return 0
+            elif self.q_table[bucketized_obs][0] < self.q_table[bucketized_obs][1]:
+                self.counter[1] += 1
+                return 1
+            else:
+                return random.randint(0, 1)
 
     def train_one_epoch(self, env, n_episodes):
         self.epsilon = self.epsilon*0.9999

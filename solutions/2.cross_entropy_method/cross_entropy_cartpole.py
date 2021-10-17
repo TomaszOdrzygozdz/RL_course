@@ -41,16 +41,53 @@ class WeakAgent:
 class CrossEntropyAgent:
     def __init__(self):
         self.bucketer = CartPoleObservationBucketer(25)
+        # policy table keep the probability of choosing action=0
         self.policy_table = {}
 
     def act(self, observation):
         bucketized_obs = self.bucketer.observation_to_bucket(observation)
-        # < YOUR CODE HERE >
+        if  bucketized_obs not in self.policy_table:
+            return random.randint(0,1)
+        else:
+            if random.random() < self.policy_table[bucketized_obs][0]:
+                return 0
+            else:
+                return 1
 
     def train_one_epoch(self, env, n_episodes, alpha, best_percent=90, epsilon=0.1):
         data = test_agent(env, agent=self, n_episodes=n_episodes, render=False, print_info=False)
+        policy_update_raw = {}
+        #select best episodes
+        values_list = np.array([episode.total_reward for episode in data.values()])
+        percentile = np.percentile(values_list, best_percent)
 
-        # WRITE A FUNCTION THAT TRAINS ON ONE PART OF DATA AND RETURNS mean value and percentile value
+        used_episodes = 0
+        for episode in data.values():
+            if episode.total_reward >= percentile:
+                used_episodes += 1
+                for transition in episode.transitions_list:
+                    observation = transition.observation
+                    obs_binned = self.bucketer.observation_to_bucket(observation)
+                    if obs_binned not in policy_update_raw:
+                        policy_update_raw[obs_binned] = [0,0]
+                    policy_update_raw[obs_binned][transition.action] += 1
+
+        policy_update = {}
+        for obs, policy in policy_update_raw.items():
+            sum_over_actions = policy_update_raw[obs][0] + policy_update_raw[obs][1] + 2*epsilon
+            policy_update[obs] = [
+                (policy_update_raw[obs][0]+epsilon)/sum_over_actions,
+                (policy_update_raw[obs][1]+epsilon)/sum_over_actions
+                ]
+
+        for key, val in policy_update.items():
+            if key not in self.policy_table:
+                self.policy_table[key] = val
+            else:
+                for i in range(2):
+                    self.policy_table[key][i] = (1-alpha)*self.policy_table[key][i] + alpha*policy_update[key][i]
+
+        return np.mean(values_list), percentile
 
 
     def train(self, episodes_per_epoch, epochs, alpha, best_percent, epsilon):
