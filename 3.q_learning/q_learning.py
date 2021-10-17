@@ -23,7 +23,7 @@ class QLearningAgent:
         self.alpha = alpha
         self.gamma = gamma
         self.q_table = {}
-        self.bucketer = CartPoleObservationBucketer(25)
+        self.bucketer = CartPoleObservationBucketer(30)
         self.experience_buffer = []
         self.counter = [0,0]
         self.best_q = {}
