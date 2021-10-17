@@ -1,6 +1,7 @@
 import random
 
 import gym
+from gym.envs.classic_control import CartPoleEnv
 
 from utils_gym import test_agent
 
@@ -26,21 +27,22 @@ Index	Action	Description
 16	DOWNRIGHTFIRE	Execute DOWN and RIGHT and FIRE
 17	DOWNLEFTFIRE	Execute DOWN and LEFT and FIRE"""
 
-
-env = gym.make('Pong-v0')
-env.action_repeat_probability = 0
-
-o = env.reset()
-x = o
-
-assert False
+#
+# env = gym.make('Pong-v0')
+# env.action_repeat_probability = 0
+#
+# o = env.reset()
+# x = o
+#
+# assert False
 
 # env.render(mode='human')
 
 class AtariRandomAgent:
     def act(self, observation):
-        return 1
-        # return random.randint(0,5)
+        return random.randint(0,1)
 
-test_agent(env, AtariRandomAgent(), FPS=20)
+env2 = CartPoleEnv()
+
+test_agent(env2, AtariRandomAgent(), FPS=20)
 

@@ -22,7 +22,7 @@ from scipy.stats import norm
         1     Push cart to the right
         """
 
-class CatrtPoleObservationBucketer:
+class CartPoleObservationBucketer:
     def __init__(self, n_buckets):
         self.bins = np.array([norm.ppf(x) for x in np.linspace(0,1,n_buckets)[1:-1]])
 
@@ -32,7 +32,7 @@ class CatrtPoleObservationBucketer:
 
 class WeakAgent:
     def __init__(self):
-        self.bucketer = CatrtPoleObservationBucketer(20)
+        self.bucketer = CartPoleObservationBucketer(20)
 
     def act(self, observation):
         return random.randint(0,1)
@@ -40,7 +40,7 @@ class WeakAgent:
 
 class CrossEntropyAgent:
     def __init__(self):
-        self.bucketer = CatrtPoleObservationBucketer(25)
+        self.bucketer = CartPoleObservationBucketer(25)
         # policy table keep the probability of choosing action=0
         self.policy_table = {}
 
