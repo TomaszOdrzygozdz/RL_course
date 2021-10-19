@@ -1,13 +1,13 @@
 from time import sleep
 
 import collections
-from gym.envs.classic_control import cartpole
 
 Transition = collections.namedtuple('transition',
                                     ['observation',
                                      'action',
                                      'reward',
                                      'next_observation'])
+
 
 Episode = collections.namedtuple('episode',
                                  ['transitions_list',

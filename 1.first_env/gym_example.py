@@ -21,14 +21,14 @@ import gym
 
 class ExampleAgent:
     def act(self, observation):
-        ### Here write the code for strategy ###
-        # return random.randint(0,1)
-        if observation[2] < 0:
-            return 0
-        else:
-            return 1
+        ## Here write the code for strategy ###
+        return random.randint(0,1)
+        # if observation[2] < 0:
+        #     return 0
+        # else:
+        #     return 1
 
-def test_agent_on_cartpole(agent_class, n_episodes=1, time_range=100, render=True, FPS=10):
+def test_agent_on_cartpole(agent_class, n_episodes=1, time_range=200, render=True, FPS=10):
     agent = agent_class()
     env = gym.make('CartPole-v0')
     total_reward = 0
@@ -40,7 +40,7 @@ def test_agent_on_cartpole(agent_class, n_episodes=1, time_range=100, render=Tru
                 sleep(1/FPS)
             action = agent.act(observation)
             observation, reward, done, info = env.step(action)
-            print(f'velo = {observation[1]}, ang_velo = {observation[3]}')
+            # print(f'velo = {observation[1]}, ang_velo = {observation[3]}')
             total_reward += reward
             if done:
                 print('Episode finished after {} timesteps'.format(t+1))
@@ -50,8 +50,8 @@ def test_agent_on_cartpole(agent_class, n_episodes=1, time_range=100, render=Tru
 
 # To visualize the agents performance:
 test_agent_on_cartpole(agent_class=ExampleAgent,
-           n_episodes=1,
+           n_episodes=100,
            time_range=150,
-           render=True,
+           render=False,
            FPS=10)
 

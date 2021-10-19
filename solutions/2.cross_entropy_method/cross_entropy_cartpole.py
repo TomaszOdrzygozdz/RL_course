@@ -99,6 +99,6 @@ class CrossEntropyAgent:
 
 env = CartPoleEnv()
 cr_agent = CrossEntropyAgent()
-cr_agent.train(episodes_per_epoch=1000, epochs=20, alpha=0.5, best_percent=90, epsilon=0.1)
+cr_agent.train(episodes_per_epoch=1000, epochs=20, alpha=0.7, best_percent=90, epsilon=0.1)
 data = test_agent(env, cr_agent, FPS=24)
 print(f'Testing agent: reward = {data[0].total_reward}')

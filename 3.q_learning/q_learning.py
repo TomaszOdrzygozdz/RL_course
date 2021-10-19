@@ -44,8 +44,6 @@ class QLearningAgent:
         # print(f'Mean reward = {np.mean(values_list)}')
         q_new = {}
         for episode in self.experience_buffer:
-            i = 1
-            last_obs = None
             for transition in episode.transitions_list:
                 raw_observation = transition.observation
                 observation = self.bucketer.observation_to_bucket(raw_observation)
@@ -53,26 +51,16 @@ class QLearningAgent:
                 next_observation = self.bucketer.observation_to_bucket(next_observation_raw)
                 action = transition.action
                 reward = transition.reward
-                # if i == len(episode.transitions_list):
-                #     reward = i
+
                 q_new[observation] = [0,0]
                 if next_observation not in self.q_table:
                     self.q_table[next_observation] = [0,0]
-                q_new[observation][action] = reward + self.gamma*max([self.q_table[next_observation][0], self.q_table[next_observation][1]])
-                if q_new[observation][0] > 200 or q_new[observation][1] > 200:
-                    x =3
-                if self.q_table[observation][0] > 200 or self.q_table[observation][1] > 200:
-                    x =3
 
-                # x = [self.q_table[next_observation][0], self.q_table[next_observation][1]]
-                self.q_table[observation][action] = (1 - self.alpha) * self.q_table[observation][action] + self.alpha * q_new[observation][action]
+                #YOUR CODE HERE
+                q_new[observation][action] = #YOUR COODE
+                self.q_table[observation][action] = #YOUR CODE
 
-        # for obs in q_new:
-        #     for a in range(0,2):
-        #         pass
-        # print(self.q_table)
-        # print(f'len_self_q = {len(self.q_table)} max[0] = {max([x[0] for x in self.q_table.values()])} max[1] = {max([x[1] for x in self.q_table.values()])} ')
-        return np.mean(values_list)
+         return np.mean(values_list)
 
     def train(self, env, episodes_per_epoch, epochs):
         y = []
