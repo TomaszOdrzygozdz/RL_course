@@ -1,0 +1,13 @@
+image: "python:3.6"
+
+before_script:
+  - python --version
+  - pip install -e .[dev]
+
+stages:
+  - Unit Testing
+
+pytest:
+  stage: Unit Testing
+  script:
+  - pytest gym_sokoban

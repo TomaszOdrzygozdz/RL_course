@@ -26,6 +26,7 @@ def test_agent(env, agent, n_episodes=1, time_range=200, render=True, FPS=10, pr
                 sleep(1/FPS)
             action = agent.act(observation)
             next_observation, reward, done, info = env.step(action)
+            print(f'reward = {reward}')
             transitions_list.append(Transition(observation, action, reward, next_observation))
             observation = next_observation
             total_reward += reward
